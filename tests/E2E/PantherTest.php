@@ -6,7 +6,7 @@ use Symfony\Component\Panther\PantherTestCase;
 
 class PantherTest extends PantherTestCase
 {
-    public function testLoginAndNavigateToProfile()
+    public function testLoginAndNavigateToProfile(): void
     {
         $client = static::createPantherClient();
 
