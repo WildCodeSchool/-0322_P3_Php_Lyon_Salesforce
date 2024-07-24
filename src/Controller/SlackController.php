@@ -22,7 +22,6 @@ class SlackController extends AbstractController
             'controller_name' => 'SlackController',
         ]);
     }
-
     #[Route('{id}/createchannel', name: 'create_channel')]
     public function createChannel(
         SlackService $slackService,
@@ -34,6 +33,7 @@ class SlackController extends AbstractController
         $user = $this->getUser();
         $authorSlack = $user->getSlackId();
         $ideaId = $idea->getId();
+        
         if ($idea->isChannelCreatable()) {
             $slackArray = $ideaRepository->getSupportersSlackId($ideaId);
 

@@ -77,9 +77,8 @@ block javascripts %}
 										<div class="modal-body">
 											<form action="" name="user" method="post" enctype="multipart/form-data" class="m-2">
 												<div class="mb-3 form-check">
-													<label class="form-check-label" for="membership">Je souhaite adhérer à
-																																										                                                cette
-																																										                                                idée et rejoindre son canal lorsqu'il sera créé</label>
+													<label class="form-check-label" for="membership">
+													Je souhaite adhérer à cette idée et rejoindre son canal lorsqu'il sera créé</label>
 													<input type="checkbox" class="form-check-input" id="membership" name="membership">
 													<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 												</div>
@@ -108,8 +107,7 @@ block javascripts %}
 													{{idea.id}}
 													-
 													{{idea.title}}
-													(vous pourrez toujours la
-																																							                                        retrouver sur le tableau admin d'idée)</p>
+													(vous pourrez toujours la retrouver sur le tableau admin d'idée)</p>
 											</div>
 											<div class="modal-footer d-flex justify-content-between">
 												<button type="button" class="btn btn-primary text-white" data-bs-dismiss="modal">Annuler</button>

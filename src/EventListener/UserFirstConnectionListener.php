@@ -48,7 +48,7 @@ class FirstConnectionListener implements EventSubscriberInterface
         return $currentRoute === 'app_change_password';
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'onKernelRequest',

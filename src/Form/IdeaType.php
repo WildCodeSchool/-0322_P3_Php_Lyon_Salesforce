@@ -36,12 +36,12 @@ class IdeaType extends AbstractType
                     'A mon service' => 'Service',
                 ],
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le périmetre est obligatoire.']),
+                    new Assert\NotBlank(['message' => 'Le périmètre est obligatoire.']),
                     new Assert\Length([
                         'min' => 5,
                         'max' => 255,
-                        'minMessage' => 'Le périmetre est trop court.',
-                        'maxMessage' => 'Le périmetre est trop long.',
+                        'minMessage' => 'Le périmètre est trop court.',
+                        'maxMessage' => 'Le périmètre est trop long.',
                     ]),
                 ],
             ])
