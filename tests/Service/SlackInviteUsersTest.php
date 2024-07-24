@@ -21,7 +21,6 @@ class SlackInviteUsersTest extends KernelTestCase
 
         $this->slackInviteUsers = $container->get(SlackInviteUsers::class);
 
-        // Use reflection to set the private property
         $reflection = new \ReflectionClass($this->slackInviteUsers);
         $httpClientProperty = $reflection->getProperty('client');
         $httpClientProperty->setAccessible(true);

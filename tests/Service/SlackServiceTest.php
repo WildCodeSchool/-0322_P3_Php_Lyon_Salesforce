@@ -16,6 +16,9 @@ class SlackServiceTest extends KernelTestCase
 
     protected function setUp(): void
     {
+        self::bootKernel();
+        static::getContainer();
+
         $this->httpClientMock = $this->createMock(HttpClientInterface::class);
         $this->slackInviteUsersMock = $this->createMock(SlackInviteUsers::class);
 
@@ -43,7 +46,7 @@ class SlackServiceTest extends KernelTestCase
             ->method('request')
             ->with('POST', 'https://slack.com/api/conversations.create', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $_ENV['SLACK_OAUTH_TOKEN'],
+                    'Authorization' => 'Bearer test_token',
                     'Content-Type' => 'application/json',
                 ],
                 'body' => json_encode(['name' => $channelName]),
@@ -69,7 +72,7 @@ class SlackServiceTest extends KernelTestCase
             ->method('request')
             ->with('POST', 'https://slack.com/api/conversations.create', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $_ENV['SLACK_OAUTH_TOKEN'],
+                    'Authorization' => 'Bearer test_token',
                     'Content-Type' => 'application/json',
                 ],
                 'body' => json_encode(['name' => $channelName]),

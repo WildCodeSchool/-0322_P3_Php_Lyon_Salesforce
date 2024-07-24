@@ -24,7 +24,7 @@ class SlackControllerTest extends WebTestCase
         $this->slackServiceMock = $this->createMock(SlackService::class);
         $this->ideaRepositoryMock = $this->createMock(IdeaRepository::class);
         $this->sluggerMock = $this->createMock(SluggerInterface::class);
-        $this->securityMock = $this->createMock(Security::class);
+        $this->securityMock = static::getContainer()->get(Security::class);
     }
 
     public function testIndex(): void

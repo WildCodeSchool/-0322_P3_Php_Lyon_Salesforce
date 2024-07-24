@@ -4,7 +4,7 @@ namespace App\Tests;
 
 use Symfony\Component\Panther\PantherTestCase;
 
-class PantherTest extends PantherTestCase
+class LoginAndNavigateToProfileTest extends PantherTestCase
 {
     public function testLoginAndNavigateToProfile(): void
     {
