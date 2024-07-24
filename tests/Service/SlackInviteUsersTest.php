@@ -9,22 +9,26 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SlackInviteUsersTest extends KernelTestCase
 {
-    private $httpClientMock;
-    private $slackInviteUsers;
+    private \PHPUnit\Framework\MockObject\MockObject|HttpClientInterface $httpClientMock;
+    private SlackInviteUsers $slackInviteUsers;
 
     protected function setUp(): void
     {
         self::bootKernel();
         $container = static::getContainer();
-        
+
         $this->httpClientMock = $this->createMock(HttpClientInterface::class);
 
         $this->slackInviteUsers = $container->get(SlackInviteUsers::class);
 
-        $this->slackInviteUsers->setHttpClient($this->httpClientMock);
+        // Use reflection to set the private property
+        $reflection = new \ReflectionClass($this->slackInviteUsers);
+        $httpClientProperty = $reflection->getProperty('client');
+        $httpClientProperty->setAccessible(true);
+        $httpClientProperty->setValue($this->slackInviteUsers, $this->httpClientMock);
     }
 
-    public function testInviteUsersToChannelSuccess()
+    public function testInviteUsersToChannelSuccess(): void
     {
         $channelId = 'C1234567890';
         $slackId = 'U1234567890,U0987654321';
@@ -34,7 +38,11 @@ class SlackInviteUsersTest extends KernelTestCase
         $this->httpClientMock
             ->expects($this->once())
             ->method('request')
-            ->with('POST', 'conversations.invite', [
+            ->with('POST', 'https://slack.com/api/conversations.invite', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_ENV['SLACK_OAUTH_TOKEN'],
+                    'Content-Type' => 'application/json',
+                ],
                 'body' => json_encode([
                     'channel' => $channelId,
                     'users' => $slackId,
@@ -47,7 +55,7 @@ class SlackInviteUsersTest extends KernelTestCase
         $this->assertEquals($responseData, $result);
     }
 
-    public function testInviteUsersToChannelFailure()
+    public function testInviteUsersToChannelFailure(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to invite to channel: user_not_found');
@@ -60,7 +68,11 @@ class SlackInviteUsersTest extends KernelTestCase
         $this->httpClientMock
             ->expects($this->once())
             ->method('request')
-            ->with('POST', 'conversations.invite', [
+            ->with('POST', 'https://slack.com/api/conversations.invite', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_ENV['SLACK_OAUTH_TOKEN'],
+                    'Content-Type' => 'application/json',
+                ],
                 'body' => json_encode([
                     'channel' => $channelId,
                     'users' => $slackId,

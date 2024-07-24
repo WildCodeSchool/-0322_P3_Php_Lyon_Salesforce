@@ -10,25 +10,29 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SlackServiceTest extends KernelTestCase
 {
-
-    private $httpClientMock;
-    private $slackInviteUsersMock;
-    private $slackService;
+    private \PHPUnit\Framework\MockObject\MockObject|HttpClientInterface $httpClientMock;
+    private \PHPUnit\Framework\MockObject\MockObject|SlackInviteUsers $slackInviteUsersMock;
+    private SlackService $slackService;
 
     protected function setUp(): void
     {
-        self::bootKernel();
-        $container = static::getContainer();
         $this->httpClientMock = $this->createMock(HttpClientInterface::class);
         $this->slackInviteUsersMock = $this->createMock(SlackInviteUsers::class);
-        
-        $this->slackService = $container->get(SlackService::class);
-        
-        $this->slackService->setHttpClient($this->httpClientMock);
-        $this->slackService->setSlackInviteUsers($this->slackInviteUsersMock);
+
+        $this->slackService = new SlackService();
+
+        $reflection = new \ReflectionClass($this->slackService);
+
+        $httpClientProperty = $reflection->getProperty('client');
+        $httpClientProperty->setAccessible(true);
+        $httpClientProperty->setValue($this->slackService, $this->httpClientMock);
+
+        $slackInviteUsersProperty = $reflection->getProperty('slackInviteUsers');
+        $slackInviteUsersProperty->setAccessible(true);
+        $slackInviteUsersProperty->setValue($this->slackService, $this->slackInviteUsersMock);
     }
 
-    public function testCreateChannelSuccess()
+    public function testCreateChannelSuccess(): void
     {
         $channelName = 'testchannel';
         $responseData = ['ok' => true, 'channel' => ['id' => '123456']];
@@ -37,9 +41,13 @@ class SlackServiceTest extends KernelTestCase
         $this->httpClientMock
             ->expects($this->once())
             ->method('request')
-            ->with('POST', 'conversation.create', [
+            ->with('POST', 'https://slack.com/api/conversations.create', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_ENV['SLACK_OAUTH_TOKEN'],
+                    'Content-Type' => 'application/json',
+                ],
                 'body' => json_encode(['name' => $channelName]),
-                ])
+            ])
             ->willReturn($response);
 
         $result = $this->slackService->createChannel($channelName);
@@ -47,7 +55,7 @@ class SlackServiceTest extends KernelTestCase
         $this->assertEquals($responseData, $result);
     }
 
-    public function testCreateChannelFailure()
+    public function testCreateChannelFailure(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to create channel');
@@ -59,15 +67,19 @@ class SlackServiceTest extends KernelTestCase
         $this->httpClientMock
             ->expects($this->once())
             ->method('request')
-            ->with('POST', 'conversation.create', [
+            ->with('POST', 'https://slack.com/api/conversations.create', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_ENV['SLACK_OAUTH_TOKEN'],
+                    'Content-Type' => 'application/json',
+                ],
                 'body' => json_encode(['name' => $channelName]),
-                ])
+            ])
             ->willReturn($response);
 
         $this->slackService->createChannel($channelName);
     }
 
-    public function testInviteUsersSuccess()
+    public function testInviteUsersSuccess(): void
     {
         $channelId = 'C123456';
         $slackIds = ['U123456', 'U789012'];
@@ -76,17 +88,18 @@ class SlackServiceTest extends KernelTestCase
         $this->slackInviteUsersMock
             ->expects($this->once())
             ->method('inviteUsers')
-            ->with($channelId, $slackIds)
+            ->with($channelId, implode(', ', $slackIds))
             ->willReturn($responseData);
 
-        $this->slackService->slackInviteUsers = $this->slackInviteUsersMock;
+        $response = $this->slackService->inviteUsers($channelId, implode(', ', $slackIds));
 
-        $response = $this->slackService->inviteUsers($channelId, $slackIds);
-
-        $this->assertEquals('Les utilisateurs ont bien été invités sur le nouveau canal slack', $response->getContent());
+        $this->assertEquals(
+            'Les utilisateurs ont bien été invités sur le nouveau canal slack',
+            $response->getContent()
+        );
     }
 
-    public function testInviteUsersFailure()
+    public function testInviteUsersFailure(): void
     {
         $channelId = 'C123456';
         $slackIds = 'U1234567890, U0987654321';
@@ -98,14 +111,12 @@ class SlackServiceTest extends KernelTestCase
             ->with($channelId, $slackIds)
             ->willReturn($responseData);
 
-        $this->slackService->slackInviteUsers = $this->slackInviteUsersMock;
-
         $response = $this->slackService->inviteUsers($channelId, $slackIds);
 
         $this->assertEquals("Les utilisateurs n'ont pas été invités sur le canal", $response->getContent());
     }
 
-    public function testSlackIdsHandler()
+    public function testSlackIdsHandler(): void
     {
         $slackArray = [['U1234567890'], ['U0987654321']];
         $authorSlack = 'U1122334455';
@@ -116,5 +127,4 @@ class SlackServiceTest extends KernelTestCase
 
         $this->assertEquals($expected, $result);
     }
-
 }

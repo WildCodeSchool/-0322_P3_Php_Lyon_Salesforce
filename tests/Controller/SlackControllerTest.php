@@ -12,12 +12,11 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class SlackControllerTest extends WebTestCase
 {
-
-    private $client;
-    private $slackServiceMock;
-    private $ideaRepositoryMock;
-    private $sluggerMock;
-    private $securityMock;
+    private \Symfony\Bundle\FrameworkBundle\KernelBrowser $client;
+    private \PHPUnit\Framework\MockObject\MockObject|SlackService $slackServiceMock;
+    private \PHPUnit\Framework\MockObject\MockObject|IdeaRepository $ideaRepositoryMock;
+    private \PHPUnit\Framework\MockObject\MockObject|SluggerInterface $sluggerMock;
+    private \PHPUnit\Framework\MockObject\MockObject|Security $securityMock;
 
     protected function setUp(): void
     {
@@ -28,21 +27,21 @@ class SlackControllerTest extends WebTestCase
         $this->securityMock = $this->createMock(Security::class);
     }
 
-    public function testIndex()
+    public function testIndex(): void
     {
         $this->client->request('GET', '/slack');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('h1', 'SlackController');
     }
 
-    public function testCreateChannelSuccess()
+    public function testCreateChannelSuccess(): void
     {
         $user = new User();
         $user->setSlackId('U1234567890');
         $idea = new Idea();
         $idea->setTitle('Test Idea');
         $idea->setId(1);
-        $idea->isChannelCreatable(true);
+        $idea->isChannelCreatable();
 
         $slackArray = [['U0987654321'], ['U1234567890']];
         $slackIds = 'U1234567, U0987654, U1245780';
@@ -89,14 +88,14 @@ class SlackControllerTest extends WebTestCase
         $this->assertSelectorTextContains('.flash-success', 'Nouveau canal Slack créé : Test Idea (ID: C123456).');
     }
 
-    public function testCreateChannelFailure()
+    public function testCreateChannelFailure(): void
     {
         $user = new User();
         $user->setSlackId('U123456');
         $idea = new Idea();
         $idea->setTitle('Test Idea');
         $idea->setId(1);
-        $idea->isChannelCreatable(true);
+        $idea->isChannelCreatable();
 
         $slackArray = [['U1234567890'], ['U0987654321']];
         $slackIds = 'U1234567890, U0987654321, U123456';
@@ -138,5 +137,4 @@ class SlackControllerTest extends WebTestCase
         $this->assertSelectorExists('.flash-error');
         $this->assertSelectorTextContains('.flash-error', 'Echec de création du canal Slack : name_taken.');
     }
-
 }
