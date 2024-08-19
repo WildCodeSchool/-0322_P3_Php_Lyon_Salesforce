@@ -53,7 +53,6 @@ class PasswordController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        // Render the password change form
         return $this->render('login/passwordForm.html.twig');
     }
 }

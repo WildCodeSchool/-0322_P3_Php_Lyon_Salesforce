@@ -47,8 +47,6 @@ class ImportDataCommand extends Command
         foreach ($newUsers as $user) {
             $workplaceName = $user['workplace'];
 
-
-
             $officeRepository = $this->entityManager->getRepository(Office::class);
             $office = $officeRepository->findOneBy(['location' => $workplaceName]);
 
@@ -60,10 +58,8 @@ class ImportDataCommand extends Command
 
             $email = $user['email'];
 
-
             $userRepository = $this->entityManager->getRepository(User::class);
             $newUser = $userRepository->findOneBy(['email' => $email]);
-
 
             if (!$newUser) {
                 $newUser = new User();
@@ -86,7 +82,6 @@ class ImportDataCommand extends Command
                 $this->newUserEmailSender->sendEmail($user, $password);
             }
         }
-
 
         foreach ($formerUsers as $user) {
             $email = $user['email'];
